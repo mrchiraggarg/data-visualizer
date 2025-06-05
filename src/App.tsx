@@ -38,21 +38,28 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">📊 Data Visualizer</h1>
+    <div className="min-h-screen bg-darkBg text-white font-poppins">
+      <header className="text-center py-6 text-3xl font-bold text-accent shadow-glass">
+        📊 Data Visualizer
+      </header>
 
-      <FileUploader onFileLoaded={handleFileLoaded} />
+      <main className="p-6 grid grid-cols-1 lg:grid-cols-6 gap-6">
+        <section className="col-span-6 lg:col-span-2">
+          <FileUploader onFileLoaded={handleFileLoaded} />
+          {columns.length > 0 && (
+            <ColumnSelector
+              columns={columns}
+              selected={selectedColumns}
+              onToggle={toggleColumn}
+              onChartTypeChange={changeChartType}
+            />
+          )}
+        </section>
 
-      {columns.length > 0 && (
-        <ColumnSelector
-          columns={columns}
-          selected={selectedColumns}
-          onToggle={toggleColumn}
-          onChartTypeChange={changeChartType}
-        />
-      )}
-
-      <ChartRenderer data={data} selected={selectedColumns} />
+        <section className="col-span-6 lg:col-span-4">
+          <ChartRenderer data={data} selected={selectedColumns} />
+        </section>
+      </main>
     </div>
   );
 };
