@@ -21,13 +21,11 @@ const FileUploader: React.FC<Props> = ({ onFileLoaded }) => {
 
     reader.onload = (evt) => {
       const result = evt.target?.result;
-
       if (!result) return;
 
       if (file.name.endsWith('.xlsx')) {
         const data = new Uint8Array(result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json<any>(sheet);
 
@@ -61,12 +59,22 @@ const FileUploader: React.FC<Props> = ({ onFileLoaded }) => {
   };
 
   return (
-    <div className="p-6 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800 max-w-md mx-auto">
+    <div className="p-6 rounded-2xl shadow-neumorph bg-cardBg text-white w-full max-w-xl mx-auto mb-6">
+      <label className="block w-full text-center text-sm font-semibold mb-3 text-slate-300">
+        Choose a .CSV or .XLSX File
+      </label>
+
       <input
         type="file"
         accept=".csv,.xlsx"
         onChange={handleFile}
-        className="block w-full text-sm text-gray-700 file:mr-4 file:py-3 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gray-300 file:text-gray-900 hover:file:bg-gray-400 dark:file:bg-gray-700 dark:file:text-gray-300 dark:hover:file:bg-gray-600"
+        className="w-full text-sm text-gray-300
+          file:mr-4 file:py-3 file:px-6
+          file:rounded-xl file:border-0
+          file:font-semibold
+          file:bg-accent file:text-white
+          hover:file:bg-blue-600
+          transition-all duration-150"
       />
     </div>
   );
