@@ -3,14 +3,13 @@ import Plot from 'react-plotly.js';
 
 type Props = {
   data: any[];
+  columnsToShow: string[];
 };
 
-const ChartRenderer: React.FC<Props> = ({ data }) => {
+const ChartRenderer: React.FC<Props> = ({ data, columnsToShow }) => {
   if (!data || data.length === 0) return null;
 
-  const columns = Object.keys(data[0]);
-
-  const charts = columns.map((col) => {
+  const charts = columnsToShow.map((col) => {
     const values = data.map((row) => row[col]);
 
     const numericValues = values.filter((v) => !isNaN(Number(v)));
@@ -18,8 +17,11 @@ const ChartRenderer: React.FC<Props> = ({ data }) => {
     if (numericValues.length >= values.length * 0.5) {
       // Numeric column → Histogram
       return (
-        <div key={col} className="p-4">
-          <h2 className="text-xl font-semibold mb-2">{col}</h2>
+        <div
+          key={col}
+          className="p-6 m-4 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800"
+        >
+          <h2 className="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">{col}</h2>
           <Plot
             data={[
               {
@@ -29,6 +31,7 @@ const ChartRenderer: React.FC<Props> = ({ data }) => {
               },
             ]}
             layout={{ width: 600, height: 400, title: `Distribution of ${col}` }}
+            config={{ responsive: true }}
           />
         </div>
       );
@@ -40,8 +43,11 @@ const ChartRenderer: React.FC<Props> = ({ data }) => {
       });
 
       return (
-        <div key={col} className="p-4">
-          <h2 className="text-xl font-semibold mb-2">{col}</h2>
+        <div
+          key={col}
+          className="p-6 m-4 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800"
+        >
+          <h2 className="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">{col}</h2>
           <Plot
             data={[
               {
@@ -52,13 +58,14 @@ const ChartRenderer: React.FC<Props> = ({ data }) => {
               },
             ]}
             layout={{ width: 600, height: 400, title: `Category Frequency of ${col}` }}
+            config={{ responsive: true }}
           />
         </div>
       );
     }
   });
 
-  return <div className="grid grid-cols-1 md:grid-cols-2">{charts}</div>;
+  return <div className="flex flex-wrap justify-center">{charts}</div>;
 };
 
 export default ChartRenderer;
