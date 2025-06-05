@@ -1,33 +1,49 @@
 import React from 'react';
-import clsx from 'clsx';
 
 type Props = {
   columns: string[];
-  selectedColumns: string[];
-  toggleColumn: (col: string) => void;
+  selected: { [key: string]: { chartType: 'bar' | 'pie' | 'histogram' } };
+  onToggle: (col: string) => void;
+  onChartTypeChange: (col: string, type: 'bar' | 'pie' | 'histogram') => void;
 };
 
-const ColumnSelector: React.FC<Props> = ({ columns, selectedColumns, toggleColumn }) => {
-  return (
-    <div className="flex flex-wrap gap-4 justify-center my-6">
-      {columns.map((col) => {
-        const isSelected = selectedColumns.includes(col);
+const chartOptions = ['bar', 'pie', 'histogram'];
 
+const ColumnSelector: React.FC<Props> = ({ columns, selected, onToggle, onChartTypeChange }) => {
+  return (
+    <div className="flex flex-wrap justify-center p-4 gap-4">
+      {columns.map((col) => {
+        const isSelected = selected[col];
         return (
-          <button
+          <div
             key={col}
-            onClick={() => toggleColumn(col)}
-            className={clsx(
-              "px-5 py-3 rounded-xl cursor-pointer select-none transition-shadow",
-              "bg-gray-200 dark:bg-gray-800",
-              "shadow-neumorph-light",
+            className={`px-4 py-2 rounded-xl cursor-pointer shadow-neumorph-light ${
               isSelected
-                ? "shadow-neumorph-inset text-blue-600 font-semibold"
-                : "hover:shadow-neumorph-hover"
-            )}
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+            }`}
+            onClick={() => onToggle(col)}
           >
-            {col}
-          </button>
+            <div className="flex items-center gap-2">
+              <span>{col}</span>
+              {isSelected && (
+                <select
+                  value={selected[col].chartType}
+                  onChange={(e) =>
+                    onChartTypeChange(col, e.target.value as 'bar' | 'pie' | 'histogram')
+                  }
+                  className="ml-2 text-sm px-2 py-1 rounded-md bg-white dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {chartOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          </div>
         );
       })}
     </div>
