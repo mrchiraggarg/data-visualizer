@@ -1,0 +1,37 @@
+✅ Option 1: Rename the config file to .cjs (recommended)
+Rename your file:
+postcss.config.js → postcss.config.cjs
+Then update its content like this (CommonJS syntax):
+
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+
+This works because .cjs is automatically treated as CommonJS even if you're in an ES Module project.
+
+✅ Option 2: Convert to pure ESM (if you don’t want to rename)
+Change the file to use ESM export like this (but not recommended for PostCSS, due to inconsistent support):
+
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+    autoprefixer: {},
+  },
+}
+
+But this breaks in some Vite plugins due to the way PostCSS is loaded. So again:
+
+🔥 Best practice: Just rename to postcss.config.cjs.
+
+✅ Final Checklist
+postcss.config.cjs uses module.exports = {...}
+
+tailwind.config.js stays as is (it supports ESM)
+
+"type": "module" can stay in package.json
+
+You’ve installed:
+npm install -D tailwindcss @tailwindcss/postcss autoprefixer
