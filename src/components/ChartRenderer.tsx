@@ -1,28 +1,33 @@
 import React from 'react';
 import Plot from 'react-plotly.js';
-import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
+import type { PlotMouseEvent } from 'plotly.js';
 
 type Props = {
   data: any[];
-  columnsToShow: string[];
+  selected: { [key: string]: { chartType: 'bar' | 'pie' | 'histogram' } };
 };
 
-const ChartRenderer: React.FC<Props> = ({ data, columnsToShow }) => {
+const ChartRenderer: React.FC<Props> = ({ data, selected }) => {
   if (!data || data.length === 0) return null;
 
-  const handleDownload = (filteredData: any[], col: string, value: string | number) => {
+  const handleDownload = (filteredData: any[], col: string, label: string) => {
     const csv = Papa.unparse(filteredData);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, `report-${col}-${value}.csv`);
+    saveAs(blob, `report-${col}-${label}.csv`);
   };
 
-  const handleClick = (col: string, point: any, isNumeric: boolean) => {
+  const handleClick = (
+    col: string,
+    point: PlotMouseEvent['points'][0],
+    type: 'bar' | 'pie' | 'histogram'
+  ) => {
     let filtered: any[] = [];
 
-    if (isNumeric) {
-      const binStart = point.x;
-      const binWidth = point.data.xbins?.size || 1;
+    if (type === 'histogram') {
+      const binStart = point.x as number;
+      const binWidth = (point.data.xbins?.size as number) || 1;
       const binEnd = binStart + binWidth;
       filtered = data.filter((row) => {
         const val = Number(row[col]);
@@ -30,69 +35,78 @@ const ChartRenderer: React.FC<Props> = ({ data, columnsToShow }) => {
       });
       handleDownload(filtered, col, `${binStart}-${binEnd}`);
     } else {
-      const clickedCategory = point.x;
-      filtered = data.filter((row) => row[col] === clickedCategory);
-      handleDownload(filtered, col, clickedCategory);
+      const clickedValue = point.x || (point as any).label;
+      filtered = data.filter((row) => row[col] === clickedValue);
+      handleDownload(filtered, col, clickedValue);
     }
   };
 
   return (
     <div className="flex flex-wrap justify-center">
-      {columnsToShow.map((col) => {
+      {Object.entries(selected).map(([col, { chartType }]) => {
         const values = data.map((row) => row[col]);
-        const numericValues = values.filter((v) => !isNaN(Number(v)));
-        const isNumeric = numericValues.length >= values.length * 0.5;
+        const counts: Record<string, number> = {};
 
-        if (isNumeric) {
-          return (
-            <div
-              key={col}
-              className="p-6 m-4 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800"
-            >
-              <h2 className="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">{col}</h2>
-              <Plot
-                data={[
-                  {
-                    type: 'histogram',
-                    x: numericValues.map(Number),
-                    xbins: { size: 10 },
-                    marker: { color: '#3b82f6' },
-                  },
-                ]}
-                layout={{ width: 600, height: 400, title: `Distribution of ${col}` }}
-                config={{ responsive: true }}
-                onClick={(event: { points: any[] }) => handleClick(col, event.points[0], true)}
-              />
-            </div>
-          );
-        } else {
-          const counts: Record<string, number> = {};
-          values.forEach((val) => {
-            if (val) counts[val] = (counts[val] || 0) + 1;
-          });
+        values.forEach((v) => {
+          const key = typeof v === 'string' ? v : String(v);
+          counts[key] = (counts[key] || 0) + 1;
+        });
 
-          return (
-            <div
-              key={col}
-              className="p-6 m-4 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800"
-            >
-              <h2 className="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">{col}</h2>
-              <Plot
-                data={[
-                  {
-                    type: 'bar',
-                    x: Object.keys(counts),
-                    y: Object.values(counts),
-                    marker: { color: '#6366f1' },
-                  },
-                ]}
-                layout={{ width: 600, height: 400, title: `Category Frequency of ${col}` }}
-                config={{ responsive: true }}
-                onClick={(event: { points: any[] }) => handleClick(col, event.points[0], false)}
-              />
-            </div>
-          );
+        let plotData: Partial<Plotly.PlotData>[] = [];
+        const layout = {
+          width: 600,
+          height: 400,
+          title: `${chartType} of ${col}`,
+          paper_bgcolor: '#f0f0f3',
+          plot_bgcolor: '#f0f0f3',
+        };
+
+        if (chartType === 'bar') {
+          plotData = [
+            {
+              type: 'bar',
+              x: Object.keys(counts),
+              y: Object.values(counts),
+              marker: { color: '#3b82f6' },
+            },
+          ];
+        } else if (chartType === 'pie') {
+          plotData = [
+            {
+              type: 'pie',
+              labels: Object.keys(counts),
+              values: Object.values(counts),
+              textinfo: 'label+percent',
+              hole: 0.3,
+            },
+          ];
+        } else if (chartType === 'histogram') {
+          plotData = [
+            {
+              type: 'histogram',
+              x: values.map(Number).filter((v) => !isNaN(v)),
+              xbins: { start: 0, end: Math.max(...values.map(Number).filter((v) => !isNaN(v))), size: 10 },
+              marker: { color: '#10b981' },
+            },
+          ];
         }
+
+        return (
+          <div
+            key={col}
+            className="p-6 m-4 rounded-xl shadow-neumorph-light bg-gray-100 dark:bg-gray-800"
+          >
+            <h2 className="text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300">{col}</h2>
+            <Plot
+              data={plotData}
+              layout={layout}
+              config={{ responsive: true }}
+              onClick={(event: Readonly<PlotMouseEvent>) =>
+                handleClick(col, event.points[0], chartType)
+              }
+            />
+          </div>
+        );
       })}
     </div>
   );
