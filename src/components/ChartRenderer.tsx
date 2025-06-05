@@ -61,7 +61,7 @@ const ChartRenderer: React.FC<Props> = ({ data, columnsToShow }) => {
                 ]}
                 layout={{ width: 600, height: 400, title: `Distribution of ${col}` }}
                 config={{ responsive: true }}
-                onClick={(event) => handleClick(col, event.points[0], true)}
+                onClick={(event: { points: any[] }) => handleClick(col, event.points[0], true)}
               />
             </div>
           );
@@ -88,7 +88,7 @@ const ChartRenderer: React.FC<Props> = ({ data, columnsToShow }) => {
                 ]}
                 layout={{ width: 600, height: 400, title: `Category Frequency of ${col}` }}
                 config={{ responsive: true }}
-                onClick={(event) => handleClick(col, event.points[0], false)}
+                onClick={(event: { points: any[] }) => handleClick(col, event.points[0], false)}
               />
             </div>
           );
