@@ -17,27 +17,26 @@ const ColumnSelector: React.FC<Props> = ({ columns, selected, onToggle, onChartT
         return (
           <div
             key={col}
-            className={`px-4 py-2 rounded-xl cursor-pointer shadow-neumorph-light ${
-              isSelected
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-            }`}
             onClick={() => onToggle(col)}
+            className={`min-w-[200px] px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 shadow-neumorph ${
+              isSelected ? 'bg-accent text-white' : 'bg-cardBg text-gray-200'
+            }`}
           >
-            <div className="flex items-center gap-2">
-              <span>{col}</span>
+            <div className="flex flex-col items-center gap-2">
+              <span className="font-semibold">{col}</span>
+
               {isSelected && (
                 <select
                   value={selected[col].chartType}
                   onChange={(e) =>
                     onChartTypeChange(col, e.target.value as 'bar' | 'pie' | 'histogram')
                   }
-                  className="ml-2 text-sm px-2 py-1 rounded-md bg-white dark:bg-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600"
                   onClick={(e) => e.stopPropagation()}
+                  className="mt-1 px-3 py-1 text-sm rounded-md bg-darkBg border border-slate-600 text-white shadow-inner"
                 >
                   {chartOptions.map((type) => (
                     <option key={type} value={type}>
-                      {type}
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
                     </option>
                   ))}
                 </select>
