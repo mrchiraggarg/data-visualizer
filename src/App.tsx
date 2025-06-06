@@ -38,27 +38,40 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-darkBg text-white font-poppins">
-      <header className="text-center py-6 text-3xl font-bold text-accent shadow-glass">
-        📊 Data Visualizer
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center h-16 items-center">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <span className="text-indigo-600">📊</span>
+              <span>Data Visualizer</span>
+            </h1>
+          </div>
+        </div>
       </header>
 
-      <main className="p-6 grid grid-cols-1 lg:grid-cols-6 gap-6">
-        <section className="col-span-6 lg:col-span-2">
-          <FileUploader onFileLoaded={handleFileLoaded} />
-          {columns.length > 0 && (
-            <ColumnSelector
-              columns={columns}
-              selected={selectedColumns}
-              onToggle={toggleColumn}
-              onChartTypeChange={changeChartType}
-            />
-          )}
-        </section>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+          <section className="col-span-6 lg:col-span-2 bg-white rounded-lg shadow-sm">
+            <div className="p-6">
+              <FileUploader onFileLoaded={handleFileLoaded} />
+            </div>
+            {columns.length > 0 && (
+              <div className="p-6">
+                <ColumnSelector
+                  columns={columns}
+                  selected={selectedColumns}
+                  onToggle={toggleColumn}
+                  onChartTypeChange={changeChartType}
+                />
+              </div>
+            )}
+          </section>
 
-        <section className="col-span-6 lg:col-span-4">
-          <ChartRenderer data={data} selected={selectedColumns} />
-        </section>
+          <section className="col-span-6 lg:col-span-4 bg-white rounded-lg shadow-sm p-6">
+            <ChartRenderer data={data} selected={selectedColumns} />
+          </section>
+        </div>
       </main>
     </div>
   );
