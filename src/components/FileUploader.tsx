@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 
@@ -13,10 +13,13 @@ type Props = {
 };
 
 const FileUploader: React.FC<Props> = ({ onFileLoaded }) => {
+  const [fileName, setFileName] = useState<string>('');
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setFileName(file.name);
     const reader = new FileReader();
 
     reader.onload = (evt) => {
@@ -59,23 +62,51 @@ const FileUploader: React.FC<Props> = ({ onFileLoaded }) => {
   };
 
   return (
-    <div className="p-6 rounded-2xl shadow-neumorph bg-cardBg text-white w-full max-w-xl mx-auto mb-6">
-      <label className="block w-full text-center text-sm font-semibold mb-3 text-slate-300">
-        Choose a .CSV or .XLSX File
-      </label>
+    <div className="p-8 rounded-lg bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-2xl mx-auto mb-8">
+      <div className="flex flex-col items-center space-y-6">
+        {/* <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ minWidth: '32px', minHeight: '32px' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+        </div> */}
 
-      <input
-        type="file"
-        accept=".csv,.xlsx"
-        onChange={handleFile}
-        className="w-full text-sm text-gray-300
-          file:mr-4 file:py-3 file:px-6
-          file:rounded-xl file:border-0
-          file:font-semibold
-          file:bg-accent file:text-white
-          hover:file:bg-blue-600
-          transition-all duration-150"
-      />
+        {/* <label className="text-2xl font-bold text-gray-800">
+          Upload your file
+        </label>
+        
+        <p className="text-sm text-gray-600">
+          Supported formats: CSV, XLSX
+        </p> */}
+
+        <div className="relative w-full group">
+          <input
+            type="file"
+            accept=".csv,.xlsx"
+            onChange={handleFile}
+            className="absolute inset-0 w-full h-full opacity-0 z-50 cursor-pointer"
+            aria-label="File upload"
+          />
+          <div className="w-full p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-dashed border-blue-300 group-hover:border-blue-500 group-hover:bg-blue-50 transition-all duration-300">
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="w-8 h-8" style={{ maxWidth: '32px', maxHeight: '32px' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-blue-500 group-hover:text-blue-600 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
+                </svg>
+              </div>
+              <div className="text-center">
+                <p className="text-base font-semibold text-blue-600 group-hover:text-blue-700">Click to upload or drag and drop</p>
+                <p className="text-sm text-gray-500">Supported formats: CSV, XLSX</p>
+
+                {fileName && (
+                  <div className="text-sm text-gray-700 bg-gray-100 px-4 py-2 rounded-lg">
+                    Selected file: {fileName}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
